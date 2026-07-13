@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self' fonts.googleapis.com cdnjs.cloudflare.com 'unsafe-inline'; script-src 'self' cdnjs.cloudflare.com cdn.tailwindcss.com 'unsafe-inline'; img-src * data: blob:; font-src 'self' fonts.gstatic.com cdnjs.cloudflare.com data:; media-src * data: blob:; connect-src 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HydraMove - 每小时活动与饮水提醒</title>
+    <title>上班的目标就是把尿尿白，把电充满</title>
     <!-- Font Awesome -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
     <!-- TailwindCSS -->
@@ -239,8 +239,8 @@
     <div class="container">
         <!-- 标题区域 -->
         <header class="text-center mb-12 pt-8">
-            <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">健康习惯提醒系统</h1>
-            <p class="text-xl text-white/90 max-w-3xl mx-auto">每小时提醒您站起来活动一下并喝水，维持久坐工作中的健康习惯</p>
+            <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">上班的目标就是把尿尿白，把电充满</h1>
+            <p class="text-xl text-white/90 max-w-3xl mx-auto">每小时轮流提醒你：喝水、活动、充电、远眺，做一条健康好咸鱼</p>
         </header>
         
         <!-- 主要内容区域 -->
@@ -249,11 +249,11 @@
             <div class="lg:col-span-2">
                 <div class="card p-6 md:p-8">
                     <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-                        <i class="fas fa-clock text-blue-500"></i>提醒控制中心
+                        <i class="fas fa-clock text-blue-500"></i>咸鱼提醒控制中心
                     </h2>
                     
                     <!-- 状态指示器 -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                         <div class="habit-item active">
                             <div class="flex items-center justify-between mb-3">
                                 <h3 class="font-bold text-lg text-gray-800 flex items-center gap-2">
@@ -261,8 +261,8 @@
                                 </h3>
                                 <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium" id="activityStatus">等待中</span>
                             </div>
-                            <p class="text-gray-600 mb-4">每小时提醒您起身活动5分钟，促进血液循环</p>
-                            <div class="flex items-center text-gray-700">
+                            <p class="text-gray-600 mb-4 text-sm">每小时活动一下，促进血液循环</p>
+                            <div class="flex items-center text-gray-700 text-sm">
                                 <i class="fas fa-history mr-2"></i>
                                 <span>下次提醒: <span id="nextActivityTime" class="font-bold">--:--</span></span>
                             </div>
@@ -275,10 +275,38 @@
                                 </h3>
                                 <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium" id="waterStatus">等待中</span>
                             </div>
-                            <p class="text-gray-600 mb-4">每小时提醒您喝一杯水，保持身体水分平衡</p>
-                            <div class="flex items-center text-gray-700">
+                            <p class="text-gray-600 mb-4 text-sm">每小时喝一杯水，保持水分平衡</p>
+                            <div class="flex items-center text-gray-700 text-sm">
                                 <i class="fas fa-history mr-2"></i>
                                 <span>下次提醒: <span id="nextWaterTime" class="font-bold">--:--</span></span>
+                            </div>
+                        </div>
+
+                        <div class="habit-item active">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="font-bold text-lg text-gray-800 flex items-center gap-2">
+                                    <i class="fas fa-bolt text-yellow-500"></i>手机充电
+                                </h3>
+                                <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-medium" id="chargeStatus">等待中</span>
+                            </div>
+                            <p class="text-gray-600 mb-4 text-sm">提醒给手机充电，保持电量充足</p>
+                            <div class="flex items-center text-gray-700 text-sm">
+                                <i class="fas fa-history mr-2"></i>
+                                <span>下次提醒: <span id="nextChargeTime" class="font-bold">--:--</span></span>
+                            </div>
+                        </div>
+
+                        <div class="habit-item active">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="font-bold text-lg text-gray-800 flex items-center gap-2">
+                                    <i class="fas fa-eye text-purple-500"></i>眼睛远眺
+                                </h3>
+                                <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium" id="eyeStatus">等待中</span>
+                            </div>
+                            <p class="text-gray-600 mb-4 text-sm">每小时远眺20秒，保护视力</p>
+                            <div class="flex items-center text-gray-700 text-sm">
+                                <i class="fas fa-history mr-2"></i>
+                                <span>下次提醒: <span id="nextEyeTime" class="font-bold">--:--</span></span>
                             </div>
                         </div>
                     </div>
@@ -292,10 +320,18 @@
                             <i class="fas fa-pause"></i>暂停提醒
                         </button>
                         <button class="btn btn-secondary" id="testActivityBtn">
-                            <i class="fas fa-running"></i>测试活动提醒
+                            <i class="fas fa-running"></i>测试活动
                         </button>
                         <button class="btn btn-accent" id="testWaterBtn">
-                            <i class="fas fa-tint"></i>测试喝水提醒
+                            <i class="fas fa-tint"></i>测试喝水
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mb-8">
+                        <button class="btn btn-secondary" id="testChargeBtn" style="background: #F59E0B;">
+                            <i class="fas fa-bolt"></i>测试充电
+                        </button>
+                        <button class="btn btn-secondary" id="testEyeBtn" style="background: #8B5CF6;">
+                            <i class="fas fa-eye"></i>测试远眺
                         </button>
                     </div>
                     
@@ -304,30 +340,56 @@
                         <h3 class="font-bold text-lg text-gray-800 mb-4 flex items-center gap-2">
                             <i class="fas fa-hourglass-half text-purple-500"></i>倒计时显示
                         </h3>
-                        <div class="grid grid-cols-2 gap-6">
+                        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
                             <div class="text-center">
-                                <div class="relative w-32 h-32 mx-auto mb-4">
+                                <div class="relative w-28 h-28 mx-auto mb-3">
                                     <svg class="w-full h-full" viewBox="0 0 100 100">
                                         <circle class="text-gray-200" stroke-width="8" stroke="currentColor" fill="transparent" r="42" cx="50" cy="50"/>
                                         <circle class="text-blue-500 progress-ring" stroke-width="8" stroke-linecap="round" stroke="currentColor" fill="transparent" r="42" cx="50" cy="50"
                                             stroke-dasharray="264" stroke-dashoffset="66" id="activityProgress"/>
                                     </svg>
                                     <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
-                                        <div class="text-2xl font-bold text-gray-800" id="activityCountdown">30:00</div>
-                                        <div class="text-sm text-gray-600">活动倒计时</div>
+                                        <div class="text-xl font-bold text-gray-800" id="activityCountdown">30:00</div>
+                                        <div class="text-xs text-gray-600">活动</div>
                                     </div>
                                 </div>
                             </div>
                             <div class="text-center">
-                                <div class="relative w-32 h-32 mx-auto mb-4">
+                                <div class="relative w-28 h-28 mx-auto mb-3">
                                     <svg class="w-full h-full" viewBox="0 0 100 100">
                                         <circle class="text-gray-200" stroke-width="8" stroke="currentColor" fill="transparent" r="42" cx="50" cy="50"/>
                                         <circle class="text-green-500 progress-ring" stroke-width="8" stroke-linecap="round" stroke="currentColor" fill="transparent" r="42" cx="50" cy="50"
                                             stroke-dasharray="264" stroke-dashoffset="66" id="waterProgress"/>
                                     </svg>
                                     <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
-                                        <div class="text-2xl font-bold text-gray-800" id="waterCountdown">30:00</div>
-                                        <div class="text-sm text-gray-600">喝水倒计时</div>
+                                        <div class="text-xl font-bold text-gray-800" id="waterCountdown">30:00</div>
+                                        <div class="text-xs text-gray-600">喝水</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <div class="relative w-28 h-28 mx-auto mb-3">
+                                    <svg class="w-full h-full" viewBox="0 0 100 100">
+                                        <circle class="text-gray-200" stroke-width="8" stroke="currentColor" fill="transparent" r="42" cx="50" cy="50"/>
+                                        <circle class="text-yellow-500 progress-ring" stroke-width="8" stroke-linecap="round" stroke="currentColor" fill="transparent" r="42" cx="50" cy="50"
+                                            stroke-dasharray="264" stroke-dashoffset="66" id="chargeProgress"/>
+                                    </svg>
+                                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
+                                        <div class="text-xl font-bold text-gray-800" id="chargeCountdown">30:00</div>
+                                        <div class="text-xs text-gray-600">充电</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <div class="relative w-28 h-28 mx-auto mb-3">
+                                    <svg class="w-full h-full" viewBox="0 0 100 100">
+                                        <circle class="text-gray-200" stroke-width="8" stroke="currentColor" fill="transparent" r="42" cx="50" cy="50"/>
+                                        <circle class="text-purple-500 progress-ring" stroke-width="8" stroke-linecap="round" stroke="currentColor" fill="transparent" r="42" cx="50" cy="50"
+                                            stroke-dasharray="264" stroke-dashoffset="66" id="eyeProgress"/>
+                                    </svg>
+                                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
+                                        <div class="text-xl font-bold text-gray-800" id="eyeCountdown">30:00</div>
+                                        <div class="text-xs text-gray-600">远眺</div>
                                     </div>
                                 </div>
                             </div>
@@ -335,25 +397,45 @@
                     </div>
                     
                     <!-- 今日统计 -->
-                    <div class="grid grid-cols-2 gap-6">
-                        <div class="stat-card">
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="stat-card py-4 px-5">
                             <div class="relative z-10">
-                                <div class="flex items-center justify-between mb-4">
-                                    <h4 class="font-bold text-white">今日活动提醒</h4>
-                                    <i class="fas fa-running text-white/80 text-2xl"></i>
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="font-bold text-white text-sm">今日活动</h4>
+                                    <i class="fas fa-running text-white/80 text-xl"></i>
                                 </div>
-                                <div class="text-3xl font-bold mb-2" id="activityCountToday">0</div>
-                                <div class="text-white/80">次</div>
+                                <div class="text-2xl font-bold mb-1" id="activityCountToday">0</div>
+                                <div class="text-white/80 text-xs">次</div>
                             </div>
                         </div>
-                        <div class="stat-card" style="background: linear-gradient(135deg, #10B981, #34D399);">
+                        <div class="stat-card py-4 px-5" style="background: linear-gradient(135deg, #10B981, #34D399);">
                             <div class="relative z-10">
-                                <div class="flex items-center justify-between mb-4">
-                                    <h4 class="font-bold text-white">今日喝水提醒</h4>
-                                    <i class="fas fa-tint text-white/80 text-2xl"></i>
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="font-bold text-white text-sm">今日喝水</h4>
+                                    <i class="fas fa-tint text-white/80 text-xl"></i>
                                 </div>
-                                <div class="text-3xl font-bold mb-2" id="waterCountToday">0</div>
-                                <div class="text-white/80">次</div>
+                                <div class="text-2xl font-bold mb-1" id="waterCountToday">0</div>
+                                <div class="text-white/80 text-xs">次</div>
+                            </div>
+                        </div>
+                        <div class="stat-card py-4 px-5" style="background: linear-gradient(135deg, #F59E0B, #FBBF24);">
+                            <div class="relative z-10">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="font-bold text-white text-sm">今日充电</h4>
+                                    <i class="fas fa-bolt text-white/80 text-xl"></i>
+                                </div>
+                                <div class="text-2xl font-bold mb-1" id="chargeCountToday">0</div>
+                                <div class="text-white/80 text-xs">次</div>
+                            </div>
+                        </div>
+                        <div class="stat-card py-4 px-5" style="background: linear-gradient(135deg, #8B5CF6, #A78BFA);">
+                            <div class="relative z-10">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="font-bold text-white text-sm">今日远眺</h4>
+                                    <i class="fas fa-eye text-white/80 text-xl"></i>
+                                </div>
+                                <div class="text-2xl font-bold mb-1" id="eyeCountToday">0</div>
+                                <div class="text-white/80 text-xs">次</div>
                             </div>
                         </div>
                     </div>
@@ -374,7 +456,7 @@
                             </div>
                             <div>
                                 <h4 class="font-bold text-gray-800 mb-1">活动提醒</h4>
-                                <p class="text-gray-600 text-sm">每小时提醒一次，建议进行5-10分钟的轻度活动，如站立、伸展或短暂行走。</p>
+                                <p class="text-gray-600 text-sm">每整点提醒一次，建议进行5-10分钟的轻度活动，如站立、伸展或短暂行走。</p>
                             </div>
                         </div>
                         
@@ -384,7 +466,7 @@
                             </div>
                             <div>
                                 <h4 class="font-bold text-gray-800 mb-1">喝水提醒</h4>
-                                <p class="text-gray-600 text-sm">每小时提醒一次，建议饮用约250ml水，保持身体水分平衡。</p>
+                                <p class="text-gray-600 text-sm">每30分提醒一次，建议饮用约250ml水，保持身体水分平衡。</p>
                             </div>
                         </div>
                         
@@ -410,16 +492,20 @@
                     </h2>
                     
                     <div class="space-y-4">
-                        <div class="bg-red-50 p-4 rounded-lg border-l-4 border-red-400">
-                            <p class="text-gray-800"><strong>久坐的危害：</strong>长时间坐着会增加患心血管疾病、糖尿病和肥胖的风险。</p>
-                        </div>
-                        
                         <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
-                            <p class="text-gray-800"><strong>水分的重要性：</strong>充足的水分有助于维持新陈代谢、调节体温和保持认知功能。</p>
+                            <p class="text-gray-800"><strong>站起来活动：</strong>久坐伤身，每小时站起来伸展一下，让血液循环起来。</p>
                         </div>
                         
                         <div class="bg-green-50 p-4 rounded-lg border-l-4 border-green-400">
-                            <p class="text-gray-800"><strong>简单活动建议：</strong>伸展手臂、转动颈部、深蹲、原地踏步都是不错的办公室活动。</p>
+                            <p class="text-gray-800"><strong>喝水：</strong>每小时喝一杯水，保持身体水分，皮肤也会变好。</p>
+                        </div>
+                        
+                        <div class="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-400">
+                            <p class="text-gray-800"><strong>手机充电：</strong>工作再忙也别让手机没电，随时保持联系不掉线。</p>
+                        </div>
+
+                        <div class="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-400">
+                            <p class="text-gray-800"><strong>眼睛远眺：</strong>每45分钟看屏幕后，远眺20秒，放松睫状肌，预防近视加深。</p>
                         </div>
                     </div>
                 </div>
@@ -428,7 +514,7 @@
         
         <!-- 页脚 -->
         <footer class="text-center text-white/70 py-6">
-            <p>健康习惯提醒系统 &copy; 2026 - 每小时提醒您保持健康习惯</p>
+            <p>上班的目标就是把尿尿白，把电充满 &copy; 2026</p>
             <p class="text-sm mt-2">此页面完全在浏览器中运行，无需服务器支持</p>
         </footer>
     </div>
@@ -451,9 +537,11 @@
     <script>
         // 状态变量
         let reminderActive = false;
-        let activityInterval, waterInterval;
+        let activityInterval, waterInterval, chargeInterval, eyeInterval;
         let activityCount = 0;
         let waterCount = 0;
+        let chargeCount = 0;
+        let eyeCount = 0;
         let activityReminders = [
             "是时候站起来活动一下了！久坐不利于健康。",
             "起身走走，伸展一下身体吧！",
@@ -468,25 +556,51 @@
             "水分补充时间！喝一杯水吧。",
             "保持水分：现在是喝水的好时机。"
         ];
+        let chargeReminders = [
+            "该给手机充电了！别让电量掉到红色。",
+            "手机充电时间到！插上充电器吧。",
+            "提醒：检查一下手机电量，该充了。",
+            "充电提醒：保持手机电量充足。",
+            "手机快没电了吗？该充电了！"
+        ];
+        let eyeReminders = [
+            "该休息眼睛了！远眺20秒放松一下。",
+            "眼睛累了？看看远处，让眼睛休息。",
+            "远眺时间到！看看窗外保护视力。",
+            "提醒：别一直盯着屏幕，看看远方。",
+            "护眼提醒：远眺20秒，保护你的视力。"
+        ];
         
         // DOM元素
         const startBtn = document.getElementById('startBtn');
         const pauseBtn = document.getElementById('pauseBtn');
         const testActivityBtn = document.getElementById('testActivityBtn');
         const testWaterBtn = document.getElementById('testWaterBtn');
+        const testChargeBtn = document.getElementById('testChargeBtn');
+        const testEyeBtn = document.getElementById('testEyeBtn');
         const requestPermissionBtn = document.getElementById('requestPermissionBtn');
         const notification = document.getElementById('notification');
         const closeNotificationBtn = document.getElementById('closeNotificationBtn');
         const activityCountdown = document.getElementById('activityCountdown');
         const waterCountdown = document.getElementById('waterCountdown');
+        const chargeCountdown = document.getElementById('chargeCountdown');
+        const eyeCountdown = document.getElementById('eyeCountdown');
         const activityProgress = document.getElementById('activityProgress');
         const waterProgress = document.getElementById('waterProgress');
+        const chargeProgress = document.getElementById('chargeProgress');
+        const eyeProgress = document.getElementById('eyeProgress');
         const nextActivityTime = document.getElementById('nextActivityTime');
         const nextWaterTime = document.getElementById('nextWaterTime');
+        const nextChargeTime = document.getElementById('nextChargeTime');
+        const nextEyeTime = document.getElementById('nextEyeTime');
         const activityStatus = document.getElementById('activityStatus');
         const waterStatus = document.getElementById('waterStatus');
+        const chargeStatus = document.getElementById('chargeStatus');
+        const eyeStatus = document.getElementById('eyeStatus');
         const activityCountToday = document.getElementById('activityCountToday');
         const waterCountToday = document.getElementById('waterCountToday');
+        const chargeCountToday = document.getElementById('chargeCountToday');
+        const eyeCountToday = document.getElementById('eyeCountToday');
         const notificationTitle = document.getElementById('notificationTitle');
         const notificationMessage = document.getElementById('notificationMessage');
         const notificationIcon = document.getElementById('notificationIcon');
@@ -517,6 +631,8 @@
             pauseBtn.addEventListener('click', pauseReminders);
             testActivityBtn.addEventListener('click', () => triggerReminder('activity', true));
             testWaterBtn.addEventListener('click', () => triggerReminder('water', true));
+            testChargeBtn.addEventListener('click', () => triggerReminder('charge', true));
+            testEyeBtn.addEventListener('click', () => triggerReminder('eye', true));
             requestPermissionBtn.addEventListener('click', requestNotificationPermission);
             closeNotificationBtn.addEventListener('click', hideNotification);
             
@@ -571,19 +687,29 @@
             // 清除现有间隔
             clearInterval(activityInterval);
             clearInterval(waterInterval);
+            clearInterval(chargeInterval);
+            clearInterval(eyeInterval);
             
             // 设置新的间隔（每小时一次）
             const interval = 60 * 60 * 1000; // 1小时
             
-            // 活动提醒 - 立即触发一次，然后每小时一次
+            // 活动提醒 - 整点触发
             triggerReminder('activity');
             activityInterval = setInterval(() => triggerReminder('activity'), interval);
             
-            // 喝水提醒 - 30分钟后触发，然后每小时一次
+            // 充电提醒 - 15分触发
+            setTimeout(() => triggerReminder('charge'), 15 * 60 * 1000);
+            chargeInterval = setInterval(() => triggerReminder('charge'), interval);
+            
+            // 喝水提醒 - 30分触发
             setTimeout(() => triggerReminder('water'), 30 * 60 * 1000);
             waterInterval = setInterval(() => triggerReminder('water'), interval);
             
-            showNotification('提醒已启动', '每小时提醒系统已启动。您将每小时收到活动和水提醒。', 'fas fa-play-circle', 'var(--primary)');
+            // 远眺提醒 - 45分触发
+            setTimeout(() => triggerReminder('eye'), 45 * 60 * 1000);
+            eyeInterval = setInterval(() => triggerReminder('eye'), interval);
+            
+            showNotification('提醒已启动', '每小时提醒系统已启动。您将每小时收到活动、喝水、充电和远眺提醒。', 'fas fa-play-circle', 'var(--primary)');
             
             // 更新下一个提醒时间
             updateNextReminderTimes();
@@ -596,6 +722,8 @@
             
             clearInterval(activityInterval);
             clearInterval(waterInterval);
+            clearInterval(chargeInterval);
+            clearInterval(eyeInterval);
             
             showNotification('提醒已暂停', '提醒系统已暂停。点击"开始提醒"重新启动。', 'fas fa-pause-circle', 'var(--accent)');
         }
@@ -649,6 +777,42 @@
                     waterStatus.textContent = '等待中';
                     waterStatus.classList.remove('reminder-active');
                 }, 30000);
+                
+            } else if (type === 'charge') {
+                message = chargeReminders[Math.floor(Math.random() * chargeReminders.length)];
+                title = '手机充电时间到！';
+                icon = 'fas fa-bolt';
+                color = '#F59E0B';
+                
+                chargeCount++;
+                chargeCountToday.textContent = chargeCount;
+                chargeStatus.textContent = '刚刚提醒';
+                chargeStatus.className = 'px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-medium reminder-active';
+                
+                saveCounts();
+                
+                setTimeout(() => {
+                    chargeStatus.textContent = '等待中';
+                    chargeStatus.classList.remove('reminder-active');
+                }, 30000);
+                
+            } else if (type === 'eye') {
+                message = eyeReminders[Math.floor(Math.random() * eyeReminders.length)];
+                title = '眼睛该休息了！';
+                icon = 'fas fa-eye';
+                color = '#8B5CF6';
+                
+                eyeCount++;
+                eyeCountToday.textContent = eyeCount;
+                eyeStatus.textContent = '刚刚提醒';
+                eyeStatus.className = 'px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium reminder-active';
+                
+                saveCounts();
+                
+                setTimeout(() => {
+                    eyeStatus.textContent = '等待中';
+                    eyeStatus.classList.remove('reminder-active');
+                }, 30000);
             }
             
             // 显示浏览器通知（如果允许）
@@ -693,6 +857,8 @@
             if (!reminderActive) {
                 activityCountdown.textContent = '已暂停';
                 waterCountdown.textContent = '已暂停';
+                chargeCountdown.textContent = '已暂停';
+                eyeCountdown.textContent = '已暂停';
                 return;
             }
             
@@ -717,19 +883,48 @@
                 waterMinutesLeft += 60;
             }
             
+            let chargeMinutesLeft = activityMinutesLeft - 45;
+            let chargeSecondsLeft = activitySecondsLeft;
+            if (chargeMinutesLeft < 0) {
+                chargeMinutesLeft += 60;
+            }
+            
+            let eyeMinutesLeft = activityMinutesLeft - 15;
+            let eyeSecondsLeft = activitySecondsLeft;
+            if (eyeMinutesLeft < 0) {
+                eyeMinutesLeft += 60;
+            }
+            
+            // 计算充电(15分)和远眺(45分)的偏移
+            let chargeMinutesLeft = activityMinutesLeft - 45;
+            if (chargeMinutesLeft < 0) {
+                chargeMinutesLeft += 60;
+            }
+            let eyeMinutesLeft = activityMinutesLeft - 15;
+            if (eyeMinutesLeft < 0) {
+                eyeMinutesLeft += 60;
+            }
+            
             // 格式化显示
             const activityTimeStr = `${activityMinutesLeft.toString().padStart(2, '0')}:${activitySecondsLeft.toString().padStart(2, '0')}`;
             const waterTimeStr = `${waterMinutesLeft.toString().padStart(2, '0')}:${waterSecondsLeft.toString().padStart(2, '0')}`;
+            const chargeTimeStr = `${chargeMinutesLeft.toString().padStart(2, '0')}:${chargeSecondsLeft.toString().padStart(2, '0')}`;
+            const eyeTimeStr = `${eyeMinutesLeft.toString().padStart(2, '0')}:${eyeSecondsLeft.toString().padStart(2, '0')}`;
             
             activityCountdown.textContent = activityTimeStr;
             waterCountdown.textContent = waterTimeStr;
+            chargeCountdown.textContent = chargeTimeStr;
+            eyeCountdown.textContent = eyeTimeStr;
             
             // 更新进度环
-            const activityProgressValue = 264 - (activityMinutesLeft * 4.4) - (activitySecondsLeft * 0.0733);
-            const waterProgressValue = 264 - (waterMinutesLeft * 4.4) - (waterSecondsLeft * 0.0733);
+            function calcProgress(minutes, seconds) {
+                return 264 - (minutes * 4.4) - (seconds * 0.0733);
+            }
             
-            activityProgress.style.strokeDashoffset = activityProgressValue;
-            waterProgress.style.strokeDashoffset = waterProgressValue;
+            activityProgress.style.strokeDashoffset = calcProgress(activityMinutesLeft, activitySecondsLeft);
+            waterProgress.style.strokeDashoffset = calcProgress(waterMinutesLeft, waterSecondsLeft);
+            chargeProgress.style.strokeDashoffset = calcProgress(chargeMinutesLeft, chargeSecondsLeft);
+            eyeProgress.style.strokeDashoffset = calcProgress(eyeMinutesLeft, eyeSecondsLeft);
         }
         
         // 更新下一个提醒时间
@@ -739,8 +934,19 @@
             nextActivityTime.setHours(nextActivityTime.getHours() + 1);
             nextActivityTime.setMinutes(0, 0, 0);
             
+            // 如果当前时间已经过了整点，再推后一小时
+            if (nextActivityTime <= now) {
+                nextActivityTime.setHours(nextActivityTime.getHours() + 1);
+            }
+            
+            const nextChargeTime = new Date(nextActivityTime);
+            nextChargeTime.setMinutes(15);
+            
             const nextWaterTime = new Date(nextActivityTime);
             nextWaterTime.setMinutes(30);
+            
+            const nextEyeTime = new Date(nextActivityTime);
+            nextEyeTime.setMinutes(45);
             
             // 格式化显示
             document.getElementById('nextActivityTime').textContent = 
@@ -748,6 +954,12 @@
                 
             document.getElementById('nextWaterTime').textContent = 
                 `${nextWaterTime.getHours().toString().padStart(2, '0')}:${nextWaterTime.getMinutes().toString().padStart(2, '0')}`;
+                
+            document.getElementById('nextChargeTime').textContent = 
+                `${nextChargeTime.getHours().toString().padStart(2, '0')}:${nextChargeTime.getMinutes().toString().padStart(2, '0')}`;
+                
+            document.getElementById('nextEyeTime').textContent = 
+                `${nextEyeTime.getHours().toString().padStart(2, '0')}:${nextEyeTime.getMinutes().toString().padStart(2, '0')}`;
         }
         
         // 更新提醒状态显示
@@ -784,7 +996,9 @@
             const data = {
                 date: today,
                 activityCount: activityCount,
-                waterCount: waterCount
+                waterCount: waterCount,
+                chargeCount: chargeCount,
+                eyeCount: eyeCount
             };
             localStorage.setItem('healthReminderData', JSON.stringify(data));
         }
@@ -800,9 +1014,13 @@
                 if (data.date === today) {
                     activityCount = data.activityCount;
                     waterCount = data.waterCount;
+                    chargeCount = data.chargeCount || 0;
+                    eyeCount = data.eyeCount || 0;
                     
                     activityCountToday.textContent = activityCount;
                     waterCountToday.textContent = waterCount;
+                    chargeCountToday.textContent = chargeCount;
+                    eyeCountToday.textContent = eyeCount;
                 }
             }
         }
