@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src * 'unsafe-inline'; script-src * 'unsafe-inline'; img-src * data: blob:; font-src * data:; media-src * data: blob:; connect-src 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>健康习惯提醒系统 - 每小时活动与饮水提醒</title>
+    <!-- Font Awesome -->
+    <script src="https://image.uc.cn/s/uae/g/3n/mos-production/fontawesome-free-7.1.0-web/js/all.min.js"></script>
+    <!-- TailwindCSS -->
+    <script src="https://image.uc.cn/s/uae/g/3n/mos-production/0915/3.4.17.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+        
+        :root {
+            --primary: #4F46E5;
+            --secondary: #10B981;
+            --accent: #F59E0B;
+            --dark: #1F2937;
+            --light: #F9FAFB;
+            --danger: #EF4444;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        .background-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.15;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 129px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #4338CA;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #0DA271;
+            transform: translateY(-2px);
+        }
+        
+        .btn-accent {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .btn-accent:hover {
+            background: #D97706;
+            transform: translateY(-2px);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.5s ease;
+            z-index: 1000;
+            max-width: 350px;
+            border-left: 5px solid var(--primary);
+        }
+        
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 20px rgba(79, 70, 229, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
+            }
+        }
+        
+        .floating-element {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        
+        .habit-item {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+        
+        .habit-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        .habit-item.active {
+            border-left-color: var(--primary);
+            background: rgba(79, 70, 229, 0.05);
+        }
+        
+        .reminder-active {
+            animation: reminderPulse 1.5s infinite alternate;
+        }
+        
+        @keyframes reminderPulse {
+            from { opacity: 0.7; }
+            to { opacity: 1; }
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary), #6366F1);
+            color: white;
+            border-radius: 16px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .notification {
+                left: 20px;
+                right: 20px;
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景装饰层 -->
+    <div class="background-layer" id="backgroundLayer"></div>
+    
+    <!-- 主容器 -->
+    <div class="container">
+        <!-- 标题区域 -->
+        <header class="text-center mb-12 pt-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">健康习惯提醒系统</h1>
+            <p class="text-xl text-white/90 max-w-3xl mx-auto">每小时提醒您站起来活动一下并喝水，维持久坐工作中的健康习惯</p>
+        </header>
+        
+        <!-- 主要内容区域 -->
+        <main class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+            <!-- 左侧控制面板 -->
+            <div class="lg:col-span-2">
+                <div class="card p-6 md:p-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                        <i class="fas fa-clock text-blue-500"></i>提醒控制中心
+                    </h2>
+                    
+                    <!-- 状态指示器 -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <div class="habit-item active">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="font-bold text-lg text-gray-800 flex items-center gap-2">
+                                    <i class="fas fa-running text-blue-500"></i>站起来活动
+                                </h3>
+                                <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium" id="activityStatus">等待中</span>
+                            </div>
+                            <p class="text-gray-600 mb-4">每小时提醒您起身活动5分钟，促进血液循环</p>
+                            <div class="flex items-center text-gray-700">
+                                <i class="fas fa-history mr-2"></i>
+                                <span>下次提醒: <span id="nextActivityTime" class="font-bold">--:--</span></span>
+                            </div>
+                        </div>
+                        
+                        <div class="habit-item active">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="font-bold text-lg text-gray-800 flex items-center gap-2">
+                                    <i class="fas fa-tint text-green-500"></i>喝水提醒
+                                </h3>
+                                <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium" id="waterStatus">等待中</span>
+                            </div>
+                            <p class="text-gray-600 mb-4">每小时提醒您喝一杯水，保持身体水分平衡</p>
+                            <div class="flex items-center text-gray-700">
+                                <i class="fas fa-history mr-2"></i>
+                                <span>下次提醒: <span id="nextWaterTime" class="font-bold">--:--</span></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 控制按钮 -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                        <button class="btn btn-primary" id="startBtn">
+                            <i class="fas fa-play"></i>开始提醒
+                        </button>
+                        <button class="btn btn-outline" id="pauseBtn">
+                            <i class="fas fa-pause"></i>暂停提醒
+                        </button>
+                        <button class="btn btn-secondary" id="testActivityBtn">
+                            <i class="fas fa-running"></i>测试活动提醒
+                        </button>
+                        <button class="btn btn-accent" id="testWaterBtn">
+                            <i class="fas fa-tint"></i>测试喝水提醒
+                        </button>
+                    </div>
+                    
+                    <!-- 倒计时显示 -->
+                    <div class="bg-gray-50 rounded-xl p-6 mb-8">
+                        <h3 class="font-bold text-lg text-gray-800 mb-4 flex items-center gap-2">
+                            <i class="fas fa-hourglass-half text-purple-500"></i>倒计时显示
+                        </h3>
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="text-center">
+                                <div class="relative w-32 h-32 mx-auto mb-4">
+                                    <svg class="w-full h-full" viewBox="0 0 100 100">
+                                        <circle class="text-gray-200" stroke-width="8" stroke="currentColor" fill="transparent" r="42" cx="50" cy="50"/>
+                                        <circle class="text-blue-500 progress-ring" stroke-width="8" stroke-linecap="round" stroke="currentColor" fill="transparent" r="42" cx="50" cy="50"
+                                            stroke-dasharray="264" stroke-dashoffset="66" id="activityProgress"/>
+                                    </svg>
+                                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
+                                        <div class="text-2xl font-bold text-gray-800" id="activityCountdown">30:00</div>
+                                        <div class="text-sm text-gray-600">活动倒计时</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <div class="relative w-32 h-32 mx-auto mb-4">
+                                    <svg class="w-full h-full" viewBox="0 0 100 100">
+                                        <circle class="text-gray-200" stroke-width="8" stroke="currentColor" fill="transparent" r="42" cx="50" cy="50"/>
+                                        <circle class="text-green-500 progress-ring" stroke-width="8" stroke-linecap="round" stroke="currentColor" fill="transparent" r="42" cx="50" cy="50"
+                                            stroke-dasharray="264" stroke-dashoffset="66" id="waterProgress"/>
+                                    </svg>
+                                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
+                                        <div class="text-2xl font-bold text-gray-800" id="waterCountdown">30:00</div>
+                                        <div class="text-sm text-gray-600">喝水倒计时</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 今日统计 -->
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="stat-card">
+                            <div class="relative z-10">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h4 class="font-bold text-white">今日活动提醒</h4>
+                                    <i class="fas fa-running text-white/80 text-2xl"></i>
+                                </div>
+                                <div class="text-3xl font-bold mb-2" id="activityCountToday">0</div>
+                                <div class="text-white/80">次</div>
+                            </div>
+                        </div>
+                        <div class="stat-card" style="background: linear-gradient(135deg, #10B981, #34D399);">
+                            <div class="relative z-10">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h4 class="font-bold text-white">今日喝水提醒</h4>
+                                    <i class="fas fa-tint text-white/80 text-2xl"></i>
+                                </div>
+                                <div class="text-3xl font-bold mb-2" id="waterCountToday">0</div>
+                                <div class="text-white/80">次</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 右侧信息面板 -->
+            <div>
+                <div class="card p-6 mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                        <i class="fas fa-info-circle text-blue-500"></i>提醒说明
+                    </h2>
+                    
+                    <div class="space-y-6">
+                        <div class="flex items-start gap-3">
+                            <div class="bg-blue-100 p-3 rounded-full">
+                                <i class="fas fa-running text-blue-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-800 mb-1">活动提醒</h4>
+                                <p class="text-gray-600 text-sm">每小时提醒一次，建议进行5-10分钟的轻度活动，如站立、伸展或短暂行走。</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-3">
+                            <div class="bg-green-100 p-3 rounded-full">
+                                <i class="fas fa-tint text-green-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-800 mb-1">喝水提醒</h4>
+                                <p class="text-gray-600 text-sm">每小时提醒一次，建议饮用约250ml水，保持身体水分平衡。</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-3">
+                            <div class="bg-purple-100 p-3 rounded-full">
+                                <i class="fas fa-bell text-purple-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-800 mb-1">通知权限</h4>
+                                <p class="text-gray-600 text-sm">请允许浏览器通知，以便在后台运行时也能收到提醒。</p>
+                                <button class="btn btn-outline mt-2 text-sm py-2 px-4" id="requestPermissionBtn">
+                                    请求通知权限
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 健康小贴士 -->
+                <div class="card p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                        <i class="fas fa-heartbeat text-red-500"></i>健康小贴士
+                    </h2>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-red-50 p-4 rounded-lg border-l-4 border-red-400">
+                            <p class="text-gray-800"><strong>久坐的危害：</strong>长时间坐着会增加患心血管疾病、糖尿病和肥胖的风险。</p>
+                        </div>
+                        
+                        <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
+                            <p class="text-gray-800"><strong>水分的重要性：</strong>充足的水分有助于维持新陈代谢、调节体温和保持认知功能。</p>
+                        </div>
+                        
+                        <div class="bg-green-50 p-4 rounded-lg border-l-4 border-green-400">
+                            <p class="text-gray-800"><strong>简单活动建议：</strong>伸展手臂、转动颈部、深蹲、原地踏步都是不错的办公室活动。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- 页脚 -->
+        <footer class="text-center text-white/70 py-6">
+            <p>健康习惯提醒系统 &copy; 2023 - 每小时提醒您保持健康习惯</p>
+            <p class="text-sm mt-2">此页面完全在浏览器中运行，无需服务器支持</p>
+        </footer>
+    </div>
+    
+    <!-- 通知区域 -->
+    <div class="notification" id="notification">
+        <div class="flex items-start gap-3">
+            <div class="text-2xl" id="notificationIcon"></div>
+            <div>
+                <h3 class="font-bold text-gray-800 text-lg" id="notificationTitle"></h3>
+                <p class="text-gray-600 mt-1" id="notificationMessage"></p>
+                <button class="btn btn-primary mt-4 py-2 px-4 text-sm" id="closeNotificationBtn">
+                    <i class="fas fa-check"></i>好的，我知道了
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JavaScript -->
+    <script>
+        // 状态变量
+        let reminderActive = false;
+        let activityInterval, waterInterval;
+        let activityCount = 0;
+        let waterCount = 0;
+        let activityReminders = [
+            "是时候站起来活动一下了！久坐不利于健康。",
+            "起身走走，伸展一下身体吧！",
+            "活动时间到！建议站立或走动5分钟。",
+            "起来活动一下吧，促进血液循环！",
+            "久坐提醒：站起来放松一下颈部和背部。"
+        ];
+        let waterReminders = [
+            "该喝水了！保持身体水分平衡很重要。",
+            "喝水时间到！记得补充水分。",
+            "提醒：喝一杯水，保持身体水分。",
+            "水分补充时间！喝一杯水吧。",
+            "保持水分：现在是喝水的好时机。"
+        ];
+        
+        // DOM元素
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const testActivityBtn = document.getElementById('testActivityBtn');
+        const testWaterBtn = document.getElementById('testWaterBtn');
+        const requestPermissionBtn = document.getElementById('requestPermissionBtn');
+        const notification = document.getElementById('notification');
+        const closeNotificationBtn = document.getElementById('closeNotificationBtn');
+        const activityCountdown = document.getElementById('activityCountdown');
+        const waterCountdown = document.getElementById('waterCountdown');
+        const activityProgress = document.getElementById('activityProgress');
+        const waterProgress = document.getElementById('waterProgress');
+        const nextActivityTime = document.getElementById('nextActivityTime');
+        const nextWaterTime = document.getElementById('nextWaterTime');
+        const activityStatus = document.getElementById('activityStatus');
+        const waterStatus = document.getElementById('waterStatus');
+        const activityCountToday = document.getElementById('activityCountToday');
+        const waterCountToday = document.getElementById('waterCountToday');
+        const notificationTitle = document.getElementById('notificationTitle');
+        const notificationMessage = document.getElementById('notificationMessage');
+        const notificationIcon = document.getElementById('notificationIcon');
+        const backgroundLayer = document.getElementById('backgroundLayer');
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 创建动态背景
+            createDynamicBackground();
+            
+            // 设置初始时间
+            updateNextReminderTimes();
+            updateCountdowns();
+            
+            // 从本地存储加载计数
+            loadCounts();
+            
+            // 开始提醒
+            startReminders();
+            
+            // 请求通知权限
+            if (Notification.permission === 'default') {
+                requestNotificationPermission();
+            }
+            
+            // 事件监听器
+            startBtn.addEventListener('click', startReminders);
+            pauseBtn.addEventListener('click', pauseReminders);
+            testActivityBtn.addEventListener('click', () => triggerReminder('activity', true));
+            testWaterBtn.addEventListener('click', () => triggerReminder('water', true));
+            requestPermissionBtn.addEventListener('click', requestNotificationPermission);
+            closeNotificationBtn.addEventListener('click', hideNotification);
+            
+            // 更新倒计时
+            setInterval(updateCountdowns, 1000);
+        });
+        
+        // 创建动态背景
+        function createDynamicBackground() {
+            // 清除现有背景
+            backgroundLayer.innerHTML = '';
+            
+            // 创建浮动元素
+            for (let i = 0; i < 20; i++) {
+                const element = document.createElement('div');
+                element.className = 'floating-element';
+                
+                // 随机大小和位置
+                const size = Math.random() * 80 + 20;
+                element.style.width = `${size}px`;
+                element.style.height = `${size}px`;
+                element.style.left = `${Math.random() * 100}%`;
+                element.style.top = `${Math.random() * 100}%`;
+                
+                // 随机动画
+                const duration = Math.random() * 20 + 10;
+                const delay = Math.random() * 5;
+                element.style.animation = `float ${duration}s ease-in-out ${delay}s infinite alternate`;
+                
+                // 添加到背景层
+                backgroundLayer.appendChild(element);
+            }
+            
+            // 添加CSS动画
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes float {
+                    0% { transform: translate(0, 0) rotate(0deg); }
+                    100% { transform: translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px) rotate(${Math.random() * 360}deg); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        // 开始提醒
+        function startReminders() {
+            if (reminderActive) return;
+            
+            reminderActive = true;
+            updateReminderStatus();
+            
+            // 清除现有间隔
+            clearInterval(activityInterval);
+            clearInterval(waterInterval);
+            
+            // 设置新的间隔（每小时一次）
+            const interval = 60 * 60 * 1000; // 1小时
+            
+            // 活动提醒 - 立即触发一次，然后每小时一次
+            triggerReminder('activity');
+            activityInterval = setInterval(() => triggerReminder('activity'), interval);
+            
+            // 喝水提醒 - 30分钟后触发，然后每小时一次
+            setTimeout(() => triggerReminder('water'), 30 * 60 * 1000);
+            waterInterval = setInterval(() => triggerReminder('water'), interval);
+            
+            showNotification('提醒已启动', '每小时提醒系统已启动。您将每小时收到活动和水提醒。', 'fas fa-play-circle', 'var(--primary)');
+            
+            // 更新下一个提醒时间
+            updateNextReminderTimes();
+        }
+        
+        // 暂停提醒
+        function pauseReminders() {
+            reminderActive = false;
+            updateReminderStatus();
+            
+            clearInterval(activityInterval);
+            clearInterval(waterInterval);
+            
+            showNotification('提醒已暂停', '提醒系统已暂停。点击"开始提醒"重新启动。', 'fas fa-pause-circle', 'var(--accent)');
+        }
+        
+        // 触发提醒
+        function triggerReminder(type, isTest) {
+            if (!reminderActive && !isTest) return;
+            
+            let title, message, icon, color;
+            
+            if (type === 'activity') {
+                // 随机选择提醒文案
+                message = activityReminders[Math.floor(Math.random() * activityReminders.length)];
+                title = '活动时间到！';
+                icon = 'fas fa-running';
+                color = 'var(--primary)';
+                
+                // 更新计数
+                activityCount++;
+                activityCountToday.textContent = activityCount;
+                activityStatus.textContent = '刚刚提醒';
+                activityStatus.className = 'px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium reminder-active';
+                
+                // 保存到本地存储
+                saveCounts();
+                
+                // 30秒后恢复状态
+                setTimeout(() => {
+                    activityStatus.textContent = '等待中';
+                    activityStatus.classList.remove('reminder-active');
+                }, 30000);
+                
+            } else if (type === 'water') {
+                // 随机选择提醒文案
+                message = waterReminders[Math.floor(Math.random() * waterReminders.length)];
+                title = '喝水时间到！';
+                icon = 'fas fa-tint';
+                color = 'var(--secondary)';
+                
+                // 更新计数
+                waterCount++;
+                waterCountToday.textContent = waterCount;
+                waterStatus.textContent = '刚刚提醒';
+                waterStatus.className = 'px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium reminder-active';
+                
+                // 保存到本地存储
+                saveCounts();
+                
+                // 30秒后恢复状态
+                setTimeout(() => {
+                    waterStatus.textContent = '等待中';
+                    waterStatus.classList.remove('reminder-active');
+                }, 30000);
+            }
+            
+            // 显示浏览器通知（如果允许）
+            if (Notification.permission === 'granted') {
+                new Notification(title, {
+                    body: message,
+                    icon: 'data:image/svg+xml;base64,' + btoa(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="${color}"/></svg>`)
+                });
+            }
+            
+            // 显示页面内通知
+            showNotification(title, message, icon, color);
+            
+            // 更新下一个提醒时间
+            updateNextReminderTimes();
+        }
+        
+        // 显示通知
+        function showNotification(title, message, icon, color) {
+            notificationTitle.textContent = title;
+            notificationMessage.textContent = message;
+            notificationIcon.className = icon;
+            notificationIcon.style.color = color;
+            
+            notification.classList.add('show');
+            
+            // 自动隐藏通知（10秒后）
+            setTimeout(() => {
+                if (notification.classList.contains('show')) {
+                    hideNotification();
+                }
+            }, 10000);
+        }
+        
+        // 隐藏通知
+        function hideNotification() {
+            notification.classList.remove('show');
+        }
+        
+        // 更新倒计时显示
+        function updateCountdowns() {
+            if (!reminderActive) {
+                activityCountdown.textContent = '已暂停';
+                waterCountdown.textContent = '已暂停';
+                return;
+            }
+            
+            // 获取当前时间
+            const now = new Date();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+            
+            // 计算到下一个整点的总秒数，避免秒数为0时溢出
+            let totalSeconds = (59 - minutes) * 60 + (59 - seconds);
+            if (totalSeconds < 0) totalSeconds += 3600;
+            
+            const activityMinutesLeft = Math.floor(totalSeconds / 60);
+            const activitySecondsLeft = totalSeconds % 60;
+            
+            // 喝水提醒比活动提醒晚30分钟
+            let waterMinutesLeft = activityMinutesLeft - 30;
+            let waterSecondsLeft = activitySecondsLeft;
+            
+            // 调整喝水倒计时（如果为负值）
+            if (waterMinutesLeft < 0) {
+                waterMinutesLeft += 60;
+            }
+            
+            // 格式化显示
+            const activityTimeStr = `${activityMinutesLeft.toString().padStart(2, '0')}:${activitySecondsLeft.toString().padStart(2, '0')}`;
+            const waterTimeStr = `${waterMinutesLeft.toString().padStart(2, '0')}:${waterSecondsLeft.toString().padStart(2, '0')}`;
+            
+            activityCountdown.textContent = activityTimeStr;
+            waterCountdown.textContent = waterTimeStr;
+            
+            // 更新进度环
+            const activityProgressValue = 264 - (activityMinutesLeft * 4.4) - (activitySecondsLeft * 0.0733);
+            const waterProgressValue = 264 - (waterMinutesLeft * 4.4) - (waterSecondsLeft * 0.0733);
+            
+            activityProgress.style.strokeDashoffset = activityProgressValue;
+            waterProgress.style.strokeDashoffset = waterProgressValue;
+        }
+        
+        // 更新下一个提醒时间
+        function updateNextReminderTimes() {
+            const now = new Date();
+            const nextActivityTime = new Date(now);
+            nextActivityTime.setHours(nextActivityTime.getHours() + 1);
+            nextActivityTime.setMinutes(0, 0, 0);
+            
+            const nextWaterTime = new Date(nextActivityTime);
+            nextWaterTime.setMinutes(30);
+            
+            // 格式化显示
+            document.getElementById('nextActivityTime').textContent = 
+                `${nextActivityTime.getHours().toString().padStart(2, '0')}:${nextActivityTime.getMinutes().toString().padStart(2, '0')}`;
+                
+            document.getElementById('nextWaterTime').textContent = 
+                `${nextWaterTime.getHours().toString().padStart(2, '0')}:${nextWaterTime.getMinutes().toString().padStart(2, '0')}`;
+        }
+        
+        // 更新提醒状态显示
+        function updateReminderStatus() {
+            if (reminderActive) {
+                startBtn.disabled = true;
+                startBtn.style.opacity = '0.6';
+                pauseBtn.disabled = false;
+                pauseBtn.style.opacity = '1';
+            } else {
+                startBtn.disabled = false;
+                startBtn.style.opacity = '1';
+                pauseBtn.disabled = true;
+                pauseBtn.style.opacity = '0.6';
+            }
+        }
+        
+        // 请求通知权限
+        function requestNotificationPermission() {
+            if ('Notification' in window) {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        showNotification('通知权限已启用', '现在您将在后台也能收到提醒通知。', 'fas fa-bell', 'var(--secondary)');
+                    }
+                });
+            } else {
+                showNotification('不支持通知', '您的浏览器不支持桌面通知功能。', 'fas fa-exclamation-triangle', 'var(--danger)');
+            }
+        }
+        
+        // 保存计数到本地存储
+        function saveCounts() {
+            const today = new Date().toDateString();
+            const data = {
+                date: today,
+                activityCount: activityCount,
+                waterCount: waterCount
+            };
+            localStorage.setItem('healthReminderData', JSON.stringify(data));
+        }
+        
+        // 从本地存储加载计数
+        function loadCounts() {
+            const savedData = localStorage.getItem('healthReminderData');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                const today = new Date().toDateString();
+                
+                // 如果保存的数据是今天的，则加载
+                if (data.date === today) {
+                    activityCount = data.activityCount;
+                    waterCount = data.waterCount;
+                    
+                    activityCountToday.textContent = activityCount;
+                    waterCountToday.textContent = waterCount;
+                }
+            }
+        }
+        
+        // 添加按钮悬停效果
+        document.querySelectorAll('.btn').forEach(button => {
+            button.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+            });
+            
+            button.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+        
+        // 添加卡片悬停效果
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-10px)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body>
+</html>
