@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src * 'unsafe-inline'; script-src * 'unsafe-inline'; img-src * data: blob:; font-src * data:; media-src * data: blob:; connect-src 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>摸鱼小助手 - 上班的目标就是把尿尿白，把电充满</title>
+    <script src="https://image.uc.cn/s/uae/g/3n/mos-production/fontawesome-free-7.1.0-web/js/all.min.js"></script>
+    <script src="https://image.uc.cn/s/uae/g/3n/mos-production/0915/3.4.17.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+        
+        :root {
+            --primary: #059669;
+            --primary-dark: #047857;
+            --secondary: #10B981;
+            --accent: #F59E0B;
+            --dark: #1F2937;
+            --light: #ECFDF5;
+            --danger: #EF4444;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        
+        body {
+            background: linear-gradient(135deg, #059669 0%, #34D399 50%, #A7F3D0 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        .background-layer {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; pointer-events: none; opacity: 0.1;
+        }
+        
+        .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 40px rgba(0, 0, 0, 0.12);
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-secondary { background: var(--secondary); color: white; }
+        .btn-secondary:hover { background: #059669; }
+        .btn-outline { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
+        .btn-outline:hover { background: var(--primary); color: white; }
+        
+        .notification {
+            position: fixed; bottom: 20px; right: 20px;
+            background: white; padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transform: translateY(100px); opacity: 0;
+            transition: all 0.5s ease; z-index: 1000;
+            max-width: 350px; border-left: 5px solid var(--primary);
+        }
+        .notification.show { transform: translateY(0); opacity: 1; }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(5, 150, 105, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0); }
+        }
+        
+        .floating-element {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        
+        .habit-card {
+            background: #F0FDF4;
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid #D1FAE5;
+            transition: all 0.3s ease;
+        }
+        .habit-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.15);
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary), #34D399);
+            color: white;
+            border-radius: 14px;
+            padding: 16px 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute; top: -50%; right: -50%;
+            width: 200%; height: 200%;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%; pointer-events: none;
+        }
+
+        .tip-card {
+            border-radius: 12px;
+            padding: 12px 16px;
+            border-left: 4px solid;
+            font-size: 13px;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 12px; }
+            .notification { left: 20px; right: 20px; max-width: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-layer" id="backgroundLayer"></div>
+    
+    <div class="container">
+        <!-- 标题 -->
+        <header class="text-center mb-10 pt-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-white mb-3">
+                <i class="fas fa-fish mr-3"></i>摸鱼小助手
+            </h1>
+            <p class="text-lg text-white/85 max-w-xl mx-auto">
+                上班的目标就是把尿尿白，把电充满
+            </p>
+        </header>
+
+        <main class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+            
+            <!-- ===== 左侧主面板 ===== -->
+            <div class="lg:col-span-2">
+                <div class="card p-6 md:p-8">
+                    
+                    <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                        <i class="fas fa-bell text-green-500"></i>提醒列表
+                    </h2>
+
+                    <!-- 5个习惯卡片 -->
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-8">
+                        <!-- 提肛 -->
+                        <div class="habit-card text-center">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="px-2 py-0.5 bg-red-100 text-red-600 rounded-full text-xs font-medium" id="kegelStatus">等待中</span>
+                            </div>
+                            <div class="text-2xl mb-1"><i class="fas fa-dragon text-red-500"></i></div>
+                            <div class="font-bold text-gray-800 text-sm mb-1">提肛</div>
+                            <div class="text-xs text-gray-500 mb-2">收紧盆底肌</div>
+                            <div class="text-xs text-gray-600">
+                                <i class="fas fa-history mr-1"></i>
+                                <span id="nextKegelTime" class="font-semibold">--:--</span>
+                            </div>
+                        </div>
+                        <!-- 喝水 -->
+                        <div class="habit-card text-center">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="px-2 py-0.5 bg-blue-100 text-blue-600 rounded-full text-xs font-medium" id="waterStatus">等待中</span>
+                            </div>
+                            <div class="text-2xl mb-1"><i class="fas fa-tint text-blue-500"></i></div>
+                            <div class="font-bold text-gray-800 text-sm mb-1">喝水</div>
+                            <div class="text-xs text-gray-500 mb-2">喝一杯水</div>
+                            <div class="text-xs text-gray-600">
+                                <i class="fas fa-history mr-1"></i>
+                                <span id="nextWaterTime" class="font-semibold">--:--</span>
+                            </div>
+                        </div>
+                        <!-- 远眺 -->
+                        <div class="habit-card text-center">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="px-2 py-0.5 bg-purple-100 text-purple-600 rounded-full text-xs font-medium" id="eyeStatus">等待中</span>
+                            </div>
+                            <div class="text-2xl mb-1"><i class="fas fa-eye text-purple-500"></i></div>
+                            <div class="font-bold text-gray-800 text-sm mb-1">远眺</div>
+                            <div class="text-xs text-gray-500 mb-2">放松眼睛</div>
+                            <div class="text-xs text-gray-600">
+                                <i class="fas fa-history mr-1"></i>
+                                <span id="nextEyeTime" class="font-semibold">--:--</span>
+                            </div>
+                        </div>
+                        <!-- 充电 -->
+                        <div class="habit-card text-center">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="px-2 py-0.5 bg-yellow-100 text-yellow-600 rounded-full text-xs font-medium" id="chargeStatus">等待中</span>
+                            </div>
+                            <div class="text-2xl mb-1"><i class="fas fa-bolt text-yellow-500"></i></div>
+                            <div class="font-bold text-gray-800 text-sm mb-1">充电</div>
+                            <div class="text-xs text-gray-500 mb-2">给手机充电</div>
+                            <div class="text-xs text-gray-600">
+                                <i class="fas fa-history mr-1"></i>
+                                <span id="nextChargeTime" class="font-semibold">--:--</span>
+                            </div>
+                        </div>
+                        <!-- 活动 -->
+                        <div class="habit-card text-center">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="px-2 py-0.5 bg-green-100 text-green-600 rounded-full text-xs font-medium" id="activityStatus">等待中</span>
+                            </div>
+                            <div class="text-2xl mb-1"><i class="fas fa-walking text-green-500"></i></div>
+                            <div class="font-bold text-gray-800 text-sm mb-1">活动</div>
+                            <div class="text-xs text-gray-500 mb-2">走一走</div>
+                            <div class="text-xs text-gray-600">
+                                <i class="fas fa-history mr-1"></i>
+                                <span id="nextActivityTime" class="font-semibold">--:--</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 控制按钮 -->
+                    <div class="flex gap-3 mb-4">
+                        <button class="btn btn-primary flex-1 py-3 text-base" id="startBtn">
+                            <i class="fas fa-play"></i>开始提醒
+                        </button>
+                        <button class="btn btn-outline flex-1 py-3 text-base" id="pauseBtn">
+                            <i class="fas fa-pause"></i>暂停提醒
+                        </button>
+                    </div>
+                    <div class="flex flex-wrap gap-2 mb-8">
+                        <button class="btn btn-secondary text-xs py-2 px-3" id="testKegelBtn" style="background:#EF4444;">
+                            <i class="fas fa-dragon"></i>测试提肛
+                        </button>
+                        <button class="btn btn-secondary text-xs py-2 px-3" id="testWaterBtn">
+                            <i class="fas fa-tint"></i>测试喝水
+                        </button>
+                        <button class="btn btn-secondary text-xs py-2 px-3" id="testEyeBtn" style="background:#8B5CF6;">
+                            <i class="fas fa-eye"></i>测试远眺
+                        </button>
+                        <button class="btn btn-secondary text-xs py-2 px-3" id="testChargeBtn" style="background:#F59E0B;">
+                            <i class="fas fa-bolt"></i>测试充电
+                        </button>
+                        <button class="btn btn-secondary text-xs py-2 px-3" id="testActivityBtn">
+                            <i class="fas fa-walking"></i>测试活动
+                        </button>
+                    </div>
+
+                    <!-- 倒计时 -->
+                    <div class="bg-green-50 rounded-xl p-5 mb-8">
+                        <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2 text-sm">
+                            <i class="fas fa-hourglass-half text-green-500"></i>下次提醒倒计时
+                        </h3>
+                        <div class="grid grid-cols-5 gap-2">
+                            <!-- 提肛 -->
+                            <div class="flex flex-col items-center">
+                                <div class="relative" style="width:56px;height:56px;">
+                                    <svg width="56" height="56" viewBox="0 0 36 36">
+                                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#E5E7EB" stroke-width="3"/>
+                                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#EF4444" stroke-width="3" stroke-dasharray="100, 100" id="kegelProgress"/>
+                                    </svg>
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <span class="text-[10px] font-bold text-gray-700" id="kegelCountdown">60:00</span>
+                                    </div>
+                                </div>
+                                <span class="text-[10px] text-gray-500 mt-1">提肛</span>
+                            </div>
+                            <!-- 喝水 -->
+                            <div class="flex flex-col items-center">
+                                <div class="relative" style="width:56px;height:56px;">
+                                    <svg width="56" height="56" viewBox="0 0 36 36">
+                                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#E5E7EB" stroke-width="3"/>
+                                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#3B82F6" stroke-width="3" stroke-dasharray="100, 100" id="waterProgress"/>
+                                    </svg>
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <span class="text-[10px] font-bold text-gray-700" id="waterCountdown">60:00</span>
+                                    </div>
+                                </div>
+                                <span class="text-[10px] text-gray-500 mt-1">喝水</span>
+                            </div>
+                            <!-- 远眺 -->
+                            <div class="flex flex-col items-center">
+                                <div class="relative" style="width:56px;height:56px;">
+                                    <svg width="56" height="56" viewBox="0 0 36 36">
+                                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#E5E7EB" stroke-width="3"/>
+                                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#8B5CF6" stroke-width="3" stroke-dasharray="100, 100" id="eyeProgress"/>
+                                    </svg>
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <span class="text-[10px] font-bold text-gray-700" id="eyeCountdown">60:00</span>
+                                    </div>
+                                </div>
+                                <span class="text-[10px] text-gray-500 mt-1">远眺</span>
+                            </div>
+                            <!-- 充电 -->
+                            <div class="flex flex-col items-center">
+                                <div class="relative" style="width:56px;height:56px;">
+                                    <svg width="56" height="56" viewBox="0 0 36 36">
+                                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#E5E7EB" stroke-width="3"/>
+                                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#F59E0B" stroke-width="3" stroke-dasharray="100, 100" id="chargeProgress"/>
+                                    </svg>
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <span class="text-[10px] font-bold text-gray-700" id="chargeCountdown">60:00</span>
+                                    </div>
+                                </div>
+                                <span class="text-[10px] text-gray-500 mt-1">充电</span>
+                            </div>
+                            <!-- 活动 -->
+                            <div class="flex flex-col items-center">
+                                <div class="relative" style="width:56px;height:56px;">
+                                    <svg width="56" height="56" viewBox="0 0 36 36">
+                                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#E5E7EB" stroke-width="3"/>
+                                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#10B981" stroke-width="3" stroke-dasharray="100, 100" id="activityProgress"/>
+                                    </svg>
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <span class="text-[10px] font-bold text-gray-700" id="activityCountdown">60:00</span>
+                                    </div>
+                                </div>
+                                <span class="text-[10px] text-gray-500 mt-1">活动</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 今日统计 -->
+                    <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2 text-sm">
+                        <i class="fas fa-chart-bar text-green-500"></i>今日完成
+                    </h3>
+                    <div class="grid grid-cols-5 gap-3">
+                        <div class="stat-card text-center">
+                            <div class="relative z-10">
+                                <div class="text-lg font-bold" id="kegelCountToday">0</div>
+                                <div class="text-white/80 text-[10px]">提肛</div>
+                            </div>
+                        </div>
+                        <div class="stat-card text-center" style="background:linear-gradient(135deg,#3B82F6,#60A5FA);">
+                            <div class="relative z-10">
+                                <div class="text-lg font-bold" id="waterCountToday">0</div>
+                                <div class="text-white/80 text-[10px]">喝水</div>
+                            </div>
+                        </div>
+                        <div class="stat-card text-center" style="background:linear-gradient(135deg,#8B5CF6,#A78BFA);">
+                            <div class="relative z-10">
+                                <div class="text-lg font-bold" id="eyeCountToday">0</div>
+                                <div class="text-white/80 text-[10px]">远眺</div>
+                            </div>
+                        </div>
+                        <div class="stat-card text-center" style="background:linear-gradient(135deg,#F59E0B,#FBBF24);">
+                            <div class="relative z-10">
+                                <div class="text-lg font-bold" id="chargeCountToday">0</div>
+                                <div class="text-white/80 text-[10px]">充电</div>
+                            </div>
+                        </div>
+                        <div class="stat-card text-center" style="background:linear-gradient(135deg,#10B981,#34D399);">
+                            <div class="relative z-10">
+                                <div class="text-lg font-bold" id="activityCountToday">0</div>
+                                <div class="text-white/80 text-[10px]">活动</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== 右侧面板 ===== -->
+            <div>
+                <!-- 每个习惯的说明 -->
+                <div class="card p-5 mb-6">
+                    <h2 class="font-bold text-gray-800 mb-4 flex items-center gap-2 text-base">
+                        <i class="fas fa-info-circle text-green-500"></i>提醒说明
+                    </h2>
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-3">
+                            <div class="bg-red-100 p-2 rounded-full shrink-0"><i class="fas fa-dragon text-red-500 text-sm"></i></div>
+                            <div>
+                                <div class="font-semibold text-gray-800 text-sm">提肛</div>
+                                <div class="text-xs text-gray-500">每12分提醒一次，吸气提肛屏气2~10秒</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="bg-blue-100 p-2 rounded-full shrink-0"><i class="fas fa-tint text-blue-500 text-sm"></i></div>
+                            <div>
+                                <div class="font-semibold text-gray-800 text-sm">喝水</div>
+                                <div class="text-xs text-gray-500">每48分提醒一次，每次喝一杯水约250ml</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="bg-purple-100 p-2 rounded-full shrink-0"><i class="fas fa-eye text-purple-500 text-sm"></i></div>
+                            <div>
+                                <div class="font-semibold text-gray-800 text-sm">远眺</div>
+                                <div class="text-xs text-gray-500">每36分提醒一次，看远处20秒放松眼睛</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="bg-yellow-100 p-2 rounded-full shrink-0"><i class="fas fa-bolt text-yellow-500 text-sm"></i></div>
+                            <div>
+                                <div class="font-semibold text-gray-800 text-sm">充电</div>
+                                <div class="text-xs text-gray-500">每24分提醒一次，检查手机电量</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="bg-green-100 p-2 rounded-full shrink-0"><i class="fas fa-walking text-green-500 text-sm"></i></div>
+                            <div>
+                                <div class="font-semibold text-gray-800 text-sm">活动</div>
+                                <div class="text-xs text-gray-500">每整点提醒一次，站起来走一走活动身体</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 提醒小贴士 -->
+                <div class="card p-5 mb-6">
+                    <h2 class="font-bold text-gray-800 mb-4 flex items-center gap-2 text-base">
+                        <i class="fas fa-lightbulb text-yellow-500"></i>健康小贴士
+                    </h2>
+                    <div class="space-y-3">
+                        <div class="tip-card bg-green-50 border-green-400 text-gray-700">
+                            <strong>提肛：</strong>吸气收腹提肛屏气2~10秒，呼气放松。每天2~3次效果最佳。
+                        </div>
+                        <div class="tip-card bg-blue-50 border-blue-400 text-gray-700">
+                            <strong>喝水：</strong>每小时一杯水，保持身体水分，皮肤也会变好。
+                        </div>
+                        <div class="tip-card bg-purple-50 border-purple-400 text-gray-700">
+                            <strong>远眺：</strong>每看屏幕45分钟，远眺20秒，预防近视加深。
+                        </div>
+                        <div class="tip-card bg-yellow-50 border-yellow-400 text-gray-700">
+                            <strong>充电：</strong>工作再忙也别让手机没电，保持联系不掉线。
+                        </div>
+                        <div class="tip-card bg-green-50 border-green-400 text-gray-700">
+                            <strong>活动：</strong>久坐伤身，每小时站起来走一走，促进血液循环。
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 通知权限 -->
+                <div class="card p-5">
+                    <h2 class="font-bold text-gray-800 mb-3 flex items-center gap-2 text-base">
+                        <i class="fas fa-bell text-green-500"></i>通知权限
+                    </h2>
+                    <p class="text-xs text-gray-500 mb-3">允许浏览器通知，后台也能收到提醒。</p>
+                    <button class="btn btn-outline text-xs py-2 px-4 w-full" id="requestPermissionBtn">
+                        <i class="fas fa-bell"></i>请求通知权限
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- 页脚 -->
+        <footer class="text-center text-white/70 py-6 text-sm">
+            <p>摸鱼小助手 &copy; 2026 — 上班的目标就是把尿尿白，把电充满</p>
+        </footer>
+    </div>
+
+    <!-- 通知弹窗 -->
+    <div class="notification" id="notification">
+        <div class="flex items-start gap-3">
+            <div class="text-2xl" id="notificationIcon"></div>
+            <div>
+                <h3 class="font-bold text-gray-800 text-lg" id="notificationTitle"></h3>
+                <p class="text-gray-600 mt-1 text-sm" id="notificationMessage"></p>
+                <button class="btn btn-primary mt-3 py-2 px-4 text-sm" id="closeNotificationBtn">
+                    <i class="fas fa-check"></i>好的，我知道了
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== 状态 =====
+        let reminderActive = false;
+        let kegelCount = 0, waterCount = 0, eyeCount = 0, chargeCount = 0, activityCount = 0;
+        let kegelInterval, waterInterval, eyeInterval, chargeInterval, activityInterval;
+
+        const HABIT_OFFSETS = { kegel: 12, water: 48, eye: 36, charge: 24, activity: 0 };
+        const HABIT_COLORS = { kegel: '#EF4444', water: '#3B82F6', eye: '#8B5CF6', charge: '#F59E0B', activity: '#10B981' };
+        const HABIT_ICONS = { kegel: 'fa-dragon', water: 'fa-tint', eye: 'fa-eye', charge: 'fa-bolt', activity: 'fa-walking' };
+        const HABIT_LABELS = { kegel: '提肛', water: '喝水', eye: '远眺', charge: '充电', activity: '活动' };
+        const HABIT_MSGS = {
+            kegel: ['提肛时间到！收紧盆底肌，保持2~10秒。', '做一组提肛运动！', '凯格尔时间，只收缩盆底别用臀腿。'],
+            water: ['该喝水了！喝一杯水保持身体水分。', '喝水时间到！约250ml就好。', '补充水分的时候到了！'],
+            eye: ['远眺时间到！看看远处放松眼睛。', '眼睛该休息了，远眺20秒。', '别一直盯着屏幕，看看远处吧！'],
+            charge: ['手机充电时间到！检查一下电量。', '给手机充上电，保持联系不掉线。', '别让手机没电了，快充电吧！'],
+            activity: ['站起来活动一下吧！', '起来走一走，促进血液循环。', '久坐提醒：起身活动5分钟！']
+        };
+
+        // ===== DOM =====
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const notif = document.getElementById('notification');
+        const notifTitle = document.getElementById('notificationTitle');
+        const notifMsg = document.getElementById('notificationMessage');
+        const notifIcon = document.getElementById('notificationIcon');
+        const bgLayer = document.getElementById('backgroundLayer');
+        const closeBtn = document.getElementById('closeNotificationBtn');
+
+        function el(id) { return document.getElementById(id); }
+
+        // ===== 初始化 =====
+        document.addEventListener('DOMContentLoaded', function() {
+            createBg();
+            updateAll();
+            updateTimes();
+            loadStats();
+            startAll();
+
+            if (Notification.permission === 'default') requestPermission();
+
+            startBtn.onclick = startAll;
+            pauseBtn.onclick = pauseAll;
+            closeBtn.onclick = hideNotif;
+            el('requestPermissionBtn').onclick = requestPermission;
+            el('testKegelBtn').onclick = () => testRemind('kegel');
+            el('testWaterBtn').onclick = () => testRemind('water');
+            el('testEyeBtn').onclick = () => testRemind('eye');
+            el('testChargeBtn').onclick = () => testRemind('charge');
+            el('testActivityBtn').onclick = () => testRemind('activity');
+
+            setInterval(() => { updateAll(); updateTimes(); }, 1000);
+        });
+
+        function createBg() {
+            bgLayer.innerHTML = '';
+            for (let i = 0; i < 15; i++) {
+                const d = document.createElement('div');
+                d.className = 'floating-element';
+                const s = Math.random() * 60 + 20;
+                d.style.cssText = 'width:'+s+'px;height:'+s+'px;left:'+(Math.random()*100)+'%;top:'+(Math.random()*100)+'%;animation:float'+(Math.random()*20+10)+'s ease-in-out '+(Math.random()*5)+'s infinite alternate';
+                bgLayer.appendChild(d);
+            }
+        }
+
+        function getNext(tag) {
+            const now = new Date();
+            const n = new Date(now);
+            n.setHours(n.getHours() + 1);
+            n.setMinutes(HABIT_OFFSETS[tag], 0, 0);
+            return n;
+        }
+
+        function updateAll() {
+            const now = new Date();
+            const total = 3600;
+            for (const h of Object.keys(HABIT_OFFSETS)) {
+                const next = getNext(h);
+                const sec = Math.max(0, Math.floor((next - now) / 1000));
+                const m = Math.floor(sec / 60), s = sec % 60;
+                el(h+'Countdown').textContent = String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+                el(h+'Progress').style.strokeDasharray = Math.max(0, (sec/total)*100) + ', 100';
+            }
+        }
+
+        function updateTimes() {
+            for (const h of Object.keys(HABIT_OFFSETS)) {
+                const t = getNext(h);
+                el('next'+h.charAt(0).toUpperCase()+h.slice(1)+'Time').textContent = String(t.getHours()).padStart(2,'0')+':'+String(t.getMinutes()).padStart(2,'0');
+            }
+        }
+
+        function startAll() {
+            if (reminderActive) return;
+            reminderActive = true;
+            setBtn();
+
+            for (const h of Object.keys(HABIT_OFFSETS)) {
+                if (window[h+'Int']) clearInterval(window[h+'Int']);
+                remind(h);
+                window[h+'Int'] = setInterval(() => remind(h), 3600000);
+            }
+            showNotif('提醒已启动', '每小时健康提醒已启动 💪', 'fa-play-circle', '#059669');
+            updateTimes();
+        }
+
+        function pauseAll() {
+            reminderActive = false;
+            setBtn();
+            for (const h of Object.keys(HABIT_OFFSETS)) {
+                if (window[h+'Int']) clearInterval(window[h+'Int']);
+            }
+            showNotif('已暂停', '提醒已暂停，点击开始重新启动。', 'fa-pause-circle', '#F59E0B');
+        }
+
+        function setBtn() {
+            startBtn.disabled = reminderActive;
+            startBtn.style.opacity = reminderActive ? '0.6' : '1';
+            pauseBtn.disabled = !reminderActive;
+            pauseBtn.style.opacity = reminderActive ? '1' : '0.6';
+        }
+
+        function remind(h, test) {
+            if (!reminderActive && !test) return;
+            const msgs = HABIT_MSGS[h];
+            showNotif(HABIT_LABELS[h]+'提醒', msgs[Math.floor(Math.random()*msgs.length)], HABIT_ICONS[h], HABIT_COLORS[h]);
+
+            if (!test) {
+                window[h+'Count']++;
+                el(h+'CountToday').textContent = window[h+'Count'];
+                saveStats();
+                const st = el(h+'Status');
+                st.textContent = '已提醒';
+                st.className = 'px-2 py-0.5 bg-green-100 text-green-600 rounded-full text-xs font-medium';
+                setTimeout(() => {
+                    st.textContent = '等待中';
+                    st.className = 'px-2 py-0.5 rounded-full text-xs font-medium';
+                    const c = { kegel:'bg-red-100 text-red-600', water:'bg-blue-100 text-blue-600', eye:'bg-purple-100 text-purple-600', charge:'bg-yellow-100 text-yellow-600', activity:'bg-green-100 text-green-600' };
+                    st.className += ' ' + c[h];
+                }, 5000);
+            }
+            updateTimes();
+        }
+
+        function testRemind(h) { remind(h, true); }
+
+        function showNotif(title, msg, icon, color) {
+            notifIcon.innerHTML = '<i class="fas '+icon+'" style="color:'+color+'"></i>';
+            notifTitle.textContent = title;
+            notifMsg.textContent = msg;
+            notif.style.borderLeftColor = color;
+            notif.classList.add('show');
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification(title, { body: msg });
+            }
+        }
+
+        function hideNotif() { notif.classList.remove('show'); }
+
+        function requestPermission() {
+            if ('Notification' in window) {
+                Notification.requestPermission().then(p => {
+                    if (p === 'granted') showNotif('已开启', '后台也能收到提醒', 'fa-bell', '#059669');
+                });
+            }
+        }
+
+        function saveStats() {
+            localStorage.setItem('healthData', JSON.stringify({
+                date: new Date().toDateString(),
+                kegelCount, waterCount, eyeCount, chargeCount, activityCount
+            }));
+        }
+
+        function loadStats() {
+            const d = localStorage.getItem('healthData');
+            if (d) {
+                const data = JSON.parse(d);
+                if (data.date === new Date().toDateString()) {
+                    kegelCount = data.kegelCount || 0; waterCount = data.waterCount || 0;
+                    eyeCount = data.eyeCount || 0; chargeCount = data.chargeCount || 0; activityCount = data.activityCount || 0;
+                    for (const h of Object.keys(HABIT_OFFSETS)) el(h+'CountToday').textContent = window[h+'Count'];
+                }
+            }
+        }
+    </script>
+</body>
+</html>
