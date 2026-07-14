@@ -1,0 +1,6 @@
+name = "drink-repo"
+compatibility_date = "2025-07-14"
+
+# 纯静态站点：把当前目录作为静态资源目录交给 wrangler 托管
+# 访问根路径 "/" 会自动寻找 index.html
+assets = { directory = "./", not_found_handling = "404-page" }
